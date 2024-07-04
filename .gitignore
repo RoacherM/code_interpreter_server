@@ -1,0 +1,66 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Log files
+*.log
+
+# Docker related files
+docker/*.sh
+docker/Dockerfile
+
+# Python virtual environments
+venv/
+env/
+.venv/
+.env/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Environments
+.env
+*.env
+
+# Data analysis outputs
+*.csv
+*.h5
+*.hdf5
+*.sqlite3
+*.db
+*.npz
+
+# Data files
+*.dat
+*.data
+
+# Images and plots
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+
+# Matplotlib plots
+*.figure
+
+# Notebooks
+*.ipynb
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Test files
+tests/__pycache__/
+tests/*.py[cod]
+tests/*$py.class
+
+# Specific to your directory structure
+code_interpreter/__pycache__/
+code_interpreter/resource/
+
+# IDEs and editors
+.vscode/
+.idea/
