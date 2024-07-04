@@ -46,7 +46,7 @@ async def execute_code(
 #     await interpreter_service.start()
 
 
-@app.on_event("shutdown")
-async def shutdown_event():
-    for interpreter in interpreters.values():
-        del interpreter
+# @app.on_event("shutdown")
+# async def shutdown_event():
+#     for interpreter in interpreters.values():
+#         del interpreter
