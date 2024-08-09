@@ -12,8 +12,9 @@ API_KEY = "xxx"
 
 async def execute_code(session, code):
     async with session.post(
-        "http://0.0.0.0:8000/execute",
-        json={"code": code, "timeout": 10},
+        # "http://0.0.0.0:8000/execute",
+        "http://172.18.20.142:8000/execute",
+        json={"code": code, "timeout": 60},
         headers={"X-API-Key": API_KEY},
     ) as response:
         return await response.json()
@@ -36,6 +37,10 @@ async def test_execute_code():
         # 第四次执行，进行计算
         result4 = await execute_code(session, "y = y ** 2\ny")
         print("Result 4:", result4)
-        
+
+        result5 = await execute_code(session, "import pandas as pd\ndf=pd.read_excel('/tmp/workspace/data/湖南资源厅原始数据.xlsx')\ndf.head(2)")
+        print("Result 5:", result5)
+
+
 if __name__ == "__main__":
     asyncio.run(test_execute_code())

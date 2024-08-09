@@ -14,3 +14,4 @@ ipykernel==6.29.4
 pillow==10.3.0
 matplotlib==3.9.0
 openpyxl==3.1.4
+websockets==12.0

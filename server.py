@@ -1,52 +1,54 @@
 import json
-import uuid
 from typing import Dict, List, Optional
+from uuid import uuid4
 
-from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException
+import uvicorn
+from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi.responses import JSONResponse
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel
 
-from code_interpreter.async_interpreter import AsyncCodeInterpreter
+from code_interpreter.interpreter import CodeInterpreter
+from code_interpreter.logger import logging
 
 app = FastAPI()
 
-# interpreter_service = AsyncCodeInterpreter()
-interpreters: Dict[str, AsyncCodeInterpreter] = {}
+# 用于存储 API key 到 CodeInterpreter 实例的映射
+interpreters: Dict[str, CodeInterpreter] = {}
 API_KEY_HEADER = APIKeyHeader(name="X-API-Key")
 
-class CodeExecutionRequest(BaseModel):
+
+class CodeRequest(BaseModel):
     code: str
     files: List[str] = []
-    timeout: Optional[int] = 60
+    timeout: Optional[int] = 30
 
-class CodeExecutionResponse(BaseModel):
-    result: str
 
-def get_interpreter(api_key: str = Depends(API_KEY_HEADER)) -> AsyncCodeInterpreter:
+def get_interpreter(api_key: str = Depends(API_KEY_HEADER)) -> CodeInterpreter:
     if api_key not in interpreters:
-        interpreters[api_key] = AsyncCodeInterpreter()
+        interpreters[api_key] = CodeInterpreter()
     return interpreters[api_key]
 
-@app.post("/execute", response_model=CodeExecutionResponse)
-async def execute_code(
-    request: CodeExecutionRequest, interpreter: AsyncCodeInterpreter = Depends(get_interpreter)
-):
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+
+@app.post("/execute")
+def execute_code(request: CodeRequest, interpreter: CodeInterpreter = Depends(get_interpreter)):
+    logging.info(f"Request data: {request}")
+
+
     try:
-        params = json.dumps({"code": request.code})
-        result = await interpreter.call(
-            params, request.files, request.timeout
+        result = interpreter.call(
+            params=json.dumps({"code": request.code}),
+            files=request.files,
+            timeout=request.timeout,
         )
-        return CodeExecutionResponse(result=result)
+        return JSONResponse(content={"result": result})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# @app.on_event("startup")
-# async def startup_event():
-#     await interpreter_service.start()
-
-
-# @app.on_event("shutdown")
-# async def shutdown_event():
-#     for interpreter in interpreters.values():
-#         del interpreter
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
