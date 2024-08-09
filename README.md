@@ -20,5 +20,5 @@ docker run -d -v /tmp/workspace:/tmp/workspace -p 80000:8000 --name ci code_inte
 
 # Test
 ```python
-python client.py
+python tests/test_code_interpreter_ws.py
 ```
