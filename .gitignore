@@ -59,7 +59,6 @@ tests/*$py.class
 
 # Specific to your directory structure
 code_interpreter/__pycache__/
-code_interpreter/resource/
 
 # IDEs and editors
 .vscode/
