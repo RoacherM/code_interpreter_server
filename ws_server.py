@@ -49,19 +49,12 @@ async def websocket_endpoint(websocket: WebSocket):
                 code = data["code"]
                 files = data.get("files", [])
                 timeout = data.get("timeout", 30)
-
-                logging.info(f"Executing code: {code}")
+                logging.info(f"Received request: {data}")
 
                 try:
-                    # result = interpreter.call(
-                    #     params=json.dumps({"code": code}),
-                    #     files=files,
-                    #     timeout=timeout,
-                    # )
-                    # await websocket.send_json({"result": result})
                     # 在线程池中运行同步的 interpreter.call 方法
                     future = executor.submit(
-                        interpreter.call, params=json.dumps({"code": code}), files=files
+                        interpreter.call, params=json.dumps({"code": code}), files=files, timeout=timeout
                     )
 
                     # 等待结果，设置超时

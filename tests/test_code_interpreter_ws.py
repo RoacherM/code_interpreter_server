@@ -65,7 +65,7 @@ async def main():
         result = await client.execute_code("print('Hello, World!')")
         print(f"Result: {result}")
 
-        result2 = await client.execute_code("print('Another execution')")
+        result2 = await client.execute_code("print('Another execution')\nimport time\ntime.sleep(35)", timeout=90)
         print(f"Result 2: {result2}")
         
         for i in range(5):
