@@ -50,10 +50,34 @@ class CodeInterpreterClient:
             await self.connect()
             return await self.execute_code(code, files, timeout)  # Retry the request
 
+    # async def close(self):
+    #     if self.websocket:
+    #         await self.websocket.close()
+    #         self.logger.info("WebSocket connection closed")
+
     async def close(self):
         if self.websocket:
-            await self.websocket.close()
-            self.logger.info("WebSocket connection closed")
+            try:
+                if self.websocket.open:
+                    release_request = {"type": "release"}
+                    await self.websocket.send(json.dumps(release_request))
+                    try:
+                        response = await asyncio.wait_for(
+                            self.websocket.recv(), timeout=10
+                        )
+                        response_data = json.loads(response)
+                        if "success" in response_data.get("result"):
+                            self.logger.info("Interpreter released successfully")
+                        else:
+                            self.logger.error("Failed to release interpreter")
+                    except Exception as e:
+                        self.logger.warning(f"Failed to release interpreter: {str(e)}")
+            except Exception as e:
+                self.logger.warning(f"Failed to close WebSocket connection: {str(e)}")
+            finally:
+                await self.websocket.close()
+                self.websocket = None
+                self.logger.info("WebSocket connection closed")
 
 
 async def main():
@@ -65,8 +89,8 @@ async def main():
         result = await client.execute_code("print('Hello, World!')")
         print(f"Result: {result}")
 
-        result2 = await client.execute_code("print('Another execution')\nimport time\ntime.sleep(35)", timeout=90)
-        print(f"Result 2: {result2}")
+        # result2 = await client.execute_code("print('Another execution')\nimport time\ntime.sleep(35)", timeout=90)
+        # print(f"Result 2: {result2}")
         
         for i in range(5):
             result = await client.execute_code(f"print('Iteration {i}')\n{i} * 2")
