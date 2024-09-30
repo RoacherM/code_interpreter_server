@@ -62,20 +62,20 @@ async def websocket_endpoint(websocket: WebSocket):
                     result = await asyncio.get_event_loop().run_in_executor(
                         None, future.result, timeout
                     )
-                    await websocket.send_json({"result": result})
+                    await websocket.send_json({"result": result, "status": "success"})
                 except TimeoutError:
                     logging.warning(f"Execution timed out after {timeout} seconds")
                     remove_interpreter(api_key)
-                    await websocket.send_json({"error": f"Execution timed out after {timeout} seconds"})
+                    await websocket.send_json({"result": f"Execution timed out after {timeout} seconds", "status": "error"})
                     await websocket.close(code=4000, reason="Execution timed out")
                 except Exception as e:
                     remove_interpreter(api_key)
-                    await websocket.send_json({"error": str(e)})
+                    await websocket.send_json({"result": str(e), "status": "error"})
             elif data["type"] == "release":
                 remove_interpreter(api_key)
-                await websocket.send_json({"success": f"Interpreter released for API key: {api_key}"})
+                await websocket.send_json({"result": "Interpreter released", "status": "success"})
             else:
-                await websocket.send_json({"error": "Unknown request type"})
+                await websocket.send_json({"result": "Unknown request type", "status": "error"})
     except WebSocketDisconnect:
         logging.info("WebSocket disconnected")
 
