@@ -15,7 +15,7 @@ docker build -t code_interpreter:latest .
 
 # Run the Docker container
 ```
-docker run -d -v /tmp/workspace:/tmp/workspace -p 80000:8000 --name ci code_interpreter:latest 
+docker run -d -v /tmp/workspace:/tmp/workspace -p 8000:8000 --name ci code_interpreter:latest 
 ```
 
 # Test

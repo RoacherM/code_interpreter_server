@@ -16,7 +16,7 @@ app = FastAPI()
 interpreters: Dict[str, CodeInterpreter] = {}
 API_KEY_HEADER = APIKeyHeader(name="X-API-Key")
 
-executor = ThreadPoolExecutor()
+executor = ThreadPoolExecutor(max_workers=50) # 设置最大线程数为 50
 
 
 def get_interpreter(api_key: str) -> CodeInterpreter:
@@ -27,7 +27,8 @@ def get_interpreter(api_key: str) -> CodeInterpreter:
 
 def remove_interpreter(api_key: str):
     if api_key in interpreters:
-        interpreters.pop(api_key)
+        interpreter = interpreters.pop(api_key)
+        interpreter.__del__() # 手动调用 interpreter 的 __del__ 方法
         logging.info(f"Removed interpreter for API key: {api_key}")
 
 
@@ -70,6 +71,9 @@ async def websocket_endpoint(websocket: WebSocket):
                 except Exception as e:
                     remove_interpreter(api_key)
                     await websocket.send_json({"error": str(e)})
+            elif data["type"] == "release":
+                remove_interpreter(api_key)
+                await websocket.send_json({"success": f"Interpreter released for API key: {api_key}"})
             else:
                 await websocket.send_json({"error": "Unknown request type"})
     except WebSocketDisconnect:
