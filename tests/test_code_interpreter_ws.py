@@ -66,7 +66,7 @@ class CodeInterpreterClient:
                             self.websocket.recv(), timeout=10
                         )
                         response_data = json.loads(response)
-                        if "success" in response_data.get("result"):
+                        if response_data.get("status") == "success":
                             self.logger.info("Interpreter released successfully")
                         else:
                             self.logger.error("Failed to release interpreter")
